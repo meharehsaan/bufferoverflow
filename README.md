@@ -25,47 +25,31 @@ A [**payload**](https://www.baeldung.com/cs/exploit-vs-payload#:~:text=A%20paylo
 exploitation. Example is the task that the robber will perform inside the
 house, i.e., **stealing jewelry and cash**.
 
-### List of Common Security Vulnerabilities
+## Contents
 
----
-
-This is a brief list of types of vulnerabilities that compromise [integrity, availability and confidentiality](https://www.certmike.com/confidentiality-integrity-and-availability-the-cia-triad/).
-
-- ****Buffer overflow**
-- Missing data encryption
-- OS command injection
-- SQL injection
-- Missing authentication for critical function
-- Missing authorization
-- Unrestricted upload of dangerous file types
-- Reliance on untrusted inputs in a security decision
-- Cross-site scripting and forgery
-- Download of codes without integrity checks
-- Use of broken algorithms
-- URL redirection to untrusted sites
-- Path traversal
-- Weak passwords
-- Software that is already infected with virus
-
-***The list grows larger every year as new ways to steal and corrupt data are discovered***
+1. Stack overflow
+2. Shellcode
+3. Exploit
+4. Buffer Overflow
+5. Bypassing Non-eXexcutable bit
 
 ### Introduction to BOF
 
 ---
 
 - The first published paper on this vulnerability was published in 1996 by **Aleph**
-One with the title of “Smashing The Stack For Fun And Profit”, and later
-revived by **Avicoder** in 2017.
+  One with the title of “Smashing The Stack For Fun And Profit”, and later
+  revived by **Avicoder** in 2017.
 - Buffer overflow exploit was first used by **Morris** **Worm** in 1988, followed by
-**Code** **Red** **Worm** in 2001 and **Slammer** **worm** in 2003. It is still one of the top
-vulnerability which cover a wide range of computer applications, libraries,
-operating systems and networking
+  **Code** **Red** **Worm** in 2001 and **Slammer** **worm** in 2003. It is still one of the top
+  vulnerability which cover a wide range of computer applications, libraries,
+  operating systems and networking
 - Hackers mostly use buffer overflows to corrupt the **execution** **stack** of a web
-app. By transferring fully crafted input to a web app, a hacker can make the
-web app to execute **arbitrary** code and probably taking over the **server**.
+  app. By transferring fully crafted input to a web app, a hacker can make the
+  web app to execute **arbitrary** code and probably taking over the **server**.
 - Although there are many **h/w and s/w** based techniques and tools that have
-been proposed and developed to **detect** and **protect** from buffer overflow
-vulnerability, but based on the trend it look likes this problem will continue to happen.
+  been proposed and developed to **detect** and **protect** from buffer overflow
+  vulnerability, but based on the trend it look likes this problem will continue to happen.
 
 - [Stack Smashing](https://www.eecs.umich.edu/courses/eecs588/static/stack_smashing.pdf)
 - [Smashing the Stack](https://avicoder.me/papers/pdf/smashthestack.pdf)
@@ -130,7 +114,7 @@ The hacker might set up backdoors or exploit other vulnerabilities to maintain a
 
 To cover their tracks, attackers erase logs, manipulate system settings, or deploy anti-forensics techniques.
 
-### Security Protection Mechanisms
+## Security Protection Mechanisms (Mitigations)
 
 ---
 
@@ -186,17 +170,13 @@ gcc -D_FORTIFY_SOURCE -O2 programname.c
 
 <br>
 
-### Shellcode
+### Function Stack Frame
 
 ---
 
-**Shellcode** refers to a small piece of code that is typically written in **assembly** language and designed to be injected and executed directly in a compromised system's memory. **Shellcode** is a fundamental component of many types of cyber attacks, including buffer overflow **exploits**, code **injection** attacks, and remote code execution. Its primary purpose is to provide attackers with a way to gain **unauthorized** access or **control** over a system.
+![FSF](img/fsf.png)
 
-- ***One common use of shellcode is to create a reverse shell, where the compromised system connects back to the attacker's system, allowing them to interact with the compromised machine.***
-
-![Mechanisms](img/secmec.png)
-
-### Machine, Assembly and Hi Level Languages
+### Machine, Assembly and Hi-Level Languages
 
 ---
 
@@ -214,14 +194,13 @@ exit(0);
 
 #### Assembly language
 
-```asm
-section .data
+```nasm
+SECTION .data
     message db "I am High level Language C", 0
 
-section .text
+SECTION .text
     global main
     extern printf, exit
-
 main:
     push message
     call printf
@@ -232,14 +211,14 @@ main:
 
 #### Machine code
 
-Assembly Code                |    Hexadecimal Machine Code
-----------------------------|-------------------------------
+| Assembly Code | Hexadecimal Machine Code |
+| ------------- | ------------------------ |
 
 ```
-push message                |     68 xx xx xx xx 
-call printf                 |     E8 xx xx xx xx 
-add esp, 4                  |     83 C4 04 
-push 0                      |     6A 00 
+push message                |     68 xx xx xx xx
+call printf                 |     E8 xx xx xx xx
+add esp, 4                  |     83 C4 04
+push 0                      |     6A 00
 call exit                   |     E8 xx xx xx xx
 
 ```
@@ -250,7 +229,7 @@ call exit                   |     E8 xx xx xx xx
 
 Assembly language plays a crucial role in buffer overflow exploits. Buffer overflow exploits involve manipulating the memory contents of a vulnerable program to overwrite critical data, such as function return addresses, and redirect the program's execution flow to malicious code. Assembly language is used to craft the shellcode or payload that will be injected and executed in the compromised system's memory.
 
-- Check **Assembly** **language** from my [intelx86-64](https://github.com/meharehsaan/intelx86_64) repository where I explained assembly from zero with examples in detail.
+- Check `Assembly language` from my [intelx86-64](https://github.com/meharehsaan/intelx86_64) repository where I explained assembly from zero with examples in detail.
 - [Endianness](https://github.com/meharehsaan/intelx86_64/tree/master/datatypes#endianness)
 - [Flag Registers](https://github.com/meharehsaan/intelx86_64#flags-register-eflagsrflags)
 - [General Purpose Registers](https://github.com/meharehsaan/intelx86_64#registers)
@@ -259,20 +238,9 @@ Assembly language plays a crucial role in buffer overflow exploits. Buffer overf
 - [Stack Behind the Curtain](https://github.com/meharehsaan/system-programming/tree/master/stack-behind-the-curtain#stack) from system programming.
 - [Basic Assembly Instructions](https://github.com/meharehsaan/intelx86_64)
 
-### Function Stack Frame
-
----
-
-![FSF](img/fsf.png)
-
-### Common Debuggers / Code Analyzers
-
----
-
-- [GDB](https://github.com/meharehsaan/intelx86_64/tree/master/gdb)
-
 ## Links
 
+- [GDB](https://github.com/meharehsaan/intelx86_64/tree/master/gdb)
 - [BOF01](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)
 - [BOF 02](https://www.jsums.edu/nmeghanathan/files/2015/05/CSC437-Fall2013-Module-5-Buffer-Overflow-Attacks.pdf)
 - [BOF in detail](https://infosecwriteups.com/buffer-overflow-basics-687f61216ebc)
@@ -282,3 +250,17 @@ Assembly language plays a crucial role in buffer overflow exploits. Buffer overf
 - [Buffer Overflow Defenses](https://cseweb.ucsd.edu/classes/wi22/cse127-a/scribenotes/3-bufferoverflowdefenses-notes.pdf)
 - [Bypass defenses](https://www.appknox.com/security/bypassing-pie-nx-and-aslr)
 - [Stack Guard](http://myweb.usf.edu/~kevindennis/wcsc/defense.pdf)
+
+## Additional Links
+
+- [Learning C](https://github.com/meharehsaan/learning-c)
+- [Operating System](https://github.com/meharehsaan/operating-system)
+- [System Programming](https://github.com/meharehsaan/system-programming)
+- [Socket Programming](https://github.com/meharehsaan/socketprogramming)
+- [Linux Utilities](https://github.com/meharehsaan/linux-utilities)
+- [Programming Concepts](https://github.com/meharehsaan/progconcepts)
+- [Resources](https://github.com/meharehsaan/resources)
+
+---
+
+Best Regards - [Mehar Ehsaan](https://github.com/meharehsaan)
